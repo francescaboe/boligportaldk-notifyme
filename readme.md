@@ -1,67 +1,85 @@
-# Boligportal scraper bot
+# Boligportal Scraper Bot
 
-## Project structure
+An automated scraper that monitors boligportal.dk for new rental listings and sends notifications via Telegram.
+
+## Features
+
+- Monitors moligportal.dk search results in real-time
+- Detects new listings automatically
+- Sends instant Telegram notifications with listing details
+- Maintains history of seen listings to avoid duplicates
+- Configurable search parameters and check intervals
+
+## Project Structure
 ```
 boligportaldk-notifyme/
     ├── config/
     │   └── config.json
     ├── requirements.txt
     ├── main.py
+    ├── notifier.py
     └── scraper.py
 ```
 
-## Step-by-Step Plan
-### Step 1: Set up the project
+## Setup
 
-Create a new folder and initialize a virtualenv (optional but clean)
+1. Clone the repository:
+```bash
+git clone https://github.com/yourusername/boligportaldk-notifyme.git
+```
 
-Add requests, beautifulsoup4, and python-dotenv or pydantic (if you want config support)
+2. Install dependencies:
+```bash
+pip install -r requirements.txt
+```
 
-### Step 2: Scrape BoligPortal
+3. Create a `.env` file with your Telegram credentials:
+```
+TELEGRAM_BOT_TOKEN=your_bot_token
+TELEGRAM_CHAT_ID=your_chat_id
+```
 
-Start with a URL like:
-https://www.boligportal.dk/en/rental-apartments/copenhagen/
+4. Configure `config/config.json`:
+```json
+{
+    "search_url": "https://www.boligportal.dk/your-search-url",
+    "check_interval": 300,
+    "listings_cache_file": "seen_listings.txt"
+}
+```
 
-Use requests + BeautifulSoup to extract:
+## Usage
 
-Title
+Start the bot:
+```bash
+python main.py
+```
 
-Price
+## Components
 
-Size
+- `main.py`: Main script that runs the monitoring loop
+- `scraper.py`: Handles the scraping of Boligportal listings
+- `notifier.py`: Manages Telegram notifications
+- `config.json`: Configuration settings
 
-Location
+## Requirements
 
-Link to listing
+- Python 3.7+
+- Beautiful Soup 4
+- Requests
+- python-dotenv
 
-Unique ID
+## Environment Variables
 
-### Step 3: Store Seen Listings
+- `TELEGRAM_BOT_TOKEN`: Your Telegram bot token
+- `TELEGRAM_CHAT_ID`: Your Telegram chat ID for notifications
 
-Save IDs in seen_listings.json (or use in-memory set() for testing)
+## Configuration Options
 
-Skip notifying if a listing was already sent
-
-### Step 4: Send Telegram Message
-
-Create a Telegram bot via @BotFather
-
-Use Telegram API to send a message like:
-
-python
-Copy
-Edit
-https://api.telegram.org/bot<token>/sendMessage?chat_id=<id>&text=<msg>
-
-### Step 5: Run in a Loop
-
-Every X seconds:
-
-Scrape listings
-
-Check for new ones
-
-Send Telegram messages
-
-Sleep
+In `config.json`:
+- `search_url`: The Boligportal.dk search URL to monitor
+    for optimal results apply filters from the website, and then copy the resulting URL.
+    for map search results, copy the URL from the map view, and remove the `&view=map` parameter.
+- `check_interval`: Time between checks in seconds
+- `seen-listings.txt`: File to store seen listing IDs
 

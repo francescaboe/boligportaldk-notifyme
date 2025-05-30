@@ -1,5 +1,5 @@
 {
-    "search_url": "https://www.boligportal.dk/en/rental-apartments/k%C3%B8benhavn/1-3-rooms/k%C3%B8benhavn-n/?max_monthly_rent=18000",
+    "search_url": "https://www.boligportal.dk/en/rental-apartments/k%C3%B8benhavn/2+-rooms/?max_monthly_rent=16000&min_size_m2=50",
     "check_interval": 30,
     "listings_cache_file": "seen_listings.txt"
 }
