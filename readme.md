@@ -43,7 +43,7 @@ TELEGRAM_CHAT_ID=your_chat_id
 ```json
 {
     "search_url": "https://www.boligportal.dk/your-search-url",
-    "check_interval": 300,
+    "check_interval": 30,
     "listings_cache_file": "seen_listings.txt"
 }
 ```

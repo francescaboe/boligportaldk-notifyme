@@ -1,9 +1,8 @@
-import requests
 import os
-from dotenv import load_dotenv
 from typing import Dict
-import urllib.parse
-import json
+
+import requests
+from dotenv import load_dotenv
 
 
 class TelegramNotifier:
