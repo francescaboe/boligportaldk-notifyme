@@ -9,6 +9,7 @@ def main():
     scraper = BoligScraper('config/config.json')
     notifier = TelegramNotifier()
 
+    # test
     print(f"Starting monitoring of {scraper.config['search_url']}")
     print(f"Will check every {scraper.config['check_interval']} seconds")
 
