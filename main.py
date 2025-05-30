@@ -1,8 +1,8 @@
-from scraper import BoligScraper
-from notifier import TelegramNotifier
 import time
-import json
 from datetime import datetime
+
+from notifier import TelegramNotifier
+from scraper import BoligScraper
 
 
 def main():

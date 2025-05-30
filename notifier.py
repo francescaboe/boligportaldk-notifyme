@@ -18,8 +18,8 @@ class TelegramNotifier:
         """Format listing information into a readable message."""
         return (
             f"🏠 *New Listing Found!*\n\n"
-            f"📍 {listing['rooms']} ({listing['size']} m²)\n"
-            f"📮 {listing['city']}, {listing['street']}\n"
+            f"📐 {listing['rooms']} rm. ({listing['size']} m²)\n"
+            f"📍 {listing['city']}, {listing['street']}\n"
             f"💰 {listing['price']}\n"
             f"⏰ {listing['listing_age']}\n\n"
             f"🔗 [View Listing]({listing['url']})"

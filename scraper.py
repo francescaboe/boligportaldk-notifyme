@@ -1,9 +1,9 @@
-import requests
-from bs4 import BeautifulSoup
 import json
-import time
 from datetime import datetime
 from typing import List, Dict
+
+import requests
+from bs4 import BeautifulSoup
 
 
 class BoligScraper:
@@ -75,7 +75,6 @@ class BoligScraper:
 
             # Find all listing cards using the specific class
             listing_cards = soup.find_all("a", class_="AdCardSrp__Link")
-            print(f"Found {len(listing_cards)} listing cards")
 
             for card in listing_cards:
                 try:
@@ -125,7 +124,6 @@ class BoligScraper:
 
                         new_listings.append(details)
                         self.seen_listings.add(listing_id)
-                        print(f"New listing found: {listing_id}")
 
                 except Exception as e:
                     print(f"Error processing card: {str(e)}")
