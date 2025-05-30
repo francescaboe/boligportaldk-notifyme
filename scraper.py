@@ -40,34 +40,46 @@ class BoligScraper:
             return url.split('id-')[-1].split('/')[0]
         return url  # fallback to full URL if ID not found
 
+    def _extract_address(self, address_elem) -> tuple:
+        """Extract city and street from address element."""
+        if not address_elem:
+            return None, None
+
+        text = address_elem.get_text(strip=True)
+        parts = text.split(',', 1)
+        city = parts[0].strip() if parts else None
+        street = parts[1].strip() if len(parts) > 1 else None
+        return city, street
+
+    def _extract_size_and_rooms(self, title_elem) -> tuple:
+        """Extract size and number of rooms from title element."""
+        if not title_elem:
+            return None, None
+
+        text = title_elem.get_text(strip=True)
+        try:
+            rooms = text.split('rm.')[0].strip()
+            size = text.split('of')[1].split('m²')[0].strip()
+            return rooms, size
+        except:
+            return None, None
+
     def get_new_listings(self) -> List[Dict]:
         try:
             print(f"\nFetching listings from: {self.config['search_url']}")
             response = requests.get(self.config['search_url'], headers=self.headers)
-
-            if response.status_code != 200:
-                print(f"Error: Got status code {response.status_code}")
-                return []
+            response.raise_for_status()
 
             soup = BeautifulSoup(response.content, 'html.parser')
-
-            # Debug information
-            print(f"Page title: {soup.title.string}")
-
             new_listings = []
 
-            # Try multiple selector patterns
-            property_cards = (
-                    soup.select("a[data-test='property-card-link']") or  # Primary selector
-                    soup.select("div.css-1ohpmkg a") or  # Secondary selector
-                    soup.select("div.css-1ljz216 a") or  # Another possible selector
-                    soup.select("a[href*='/lejligheder/']")  # Fallback selector
-            )
+            # Find all listing cards using the specific class
+            listing_cards = soup.find_all("a", class_="AdCardSrp__Link")
+            print(f"Found {len(listing_cards)} listing cards")
 
-            print(f"Found {len(property_cards)} property cards")
-
-            for card in property_cards:
+            for card in listing_cards:
                 try:
+                    # Get the listing URL
                     listing_url = card.get('href')
                     if not listing_url:
                         continue
@@ -77,22 +89,37 @@ class BoligScraper:
 
                     listing_id = self._extract_listing_id(listing_url)
 
-                    # Debug information
-                    print(f"Processing listing: {listing_id} - {listing_url}")
-
                     if listing_id not in self.seen_listings:
-                        # Get basic information from the card
-                        title = card.get_text().strip()
+                        # Extract title information
+                        title_elem = card.select_one("span.css-a76tvl")
+                        rooms, size = self._extract_size_and_rooms(title_elem)
 
-                        # Try to get price from the card
-                        price_elem = card.select_one("[data-test='price']") or card.select_one(".css-1e8e3fr")
-                        price = price_elem.text if price_elem else "Price not found"
+                        # Extract address
+                        address_elem = card.select_one("span.css-avmlqd")
+                        city, street = self._extract_address(address_elem)
+
+                        # Extract price
+                        price_elem = card.select_one("span.css-dlcfcd")
+                        price = price_elem.get_text(strip=True) if price_elem else "Price not found"
+
+                        # Extract image URL
+                        img_elem = card.select_one("img.css-1yrtl0o")
+                        image_url = img_elem.get('src') if img_elem else None
+
+                        # Extract listing age
+                        age_elem = card.select_one("span.css-14yggbm")
+                        listing_age = age_elem.get_text(strip=True) if age_elem else None
 
                         details = {
                             'url': listing_url,
                             'id': listing_id,
-                            'title': title,
+                            'rooms': rooms,
+                            'size': size,
+                            'city': city,
+                            'street': street,
                             'price': price,
+                            'image_url': image_url,
+                            'listing_age': listing_age,
                             'found_at': datetime.now().isoformat()
                         }
 

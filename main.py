@@ -1,4 +1,5 @@
 from scraper import BoligScraper
+from notifier import TelegramNotifier
 import time
 import json
 from datetime import datetime
@@ -6,6 +7,7 @@ from datetime import datetime
 
 def main():
     scraper = BoligScraper('config/config.json')
+    notifier = TelegramNotifier()
 
     print(f"Starting monitoring of {scraper.config['search_url']}")
     print(f"Will check every {scraper.config['check_interval']} seconds")
@@ -22,9 +24,18 @@ def main():
                 print(f"\nFound {len(new_listings)} new listings!")
                 for listing in new_listings:
                     print("\nNew listing found:")
-                    print(f"Title: {listing['title']}")
+                    print(f"Rooms: {listing['rooms']} ({listing['size']} m²)")
+                    print(f"Location: {listing['city']}, {listing['street']}")
                     print(f"Price: {listing['price']}")
+                    print(f"Listed: {listing['listing_age']}")
                     print(f"URL: {listing['url']}")
+
+                    # Send Telegram notification
+                    if notifier.send_notification(listing):
+                        print("✅ Telegram notification sent")
+                    else:
+                        print("❌ Failed to send Telegram notification")
+
                     print("-" * 50)
             else:
                 print("\nNo new listings found in this check")

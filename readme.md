@@ -65,6 +65,3 @@ Send Telegram messages
 
 Sleep
 
-
-Created with the help of chatgpt and [aleenprd repo](https://github.com/aleenprd/boligportal-scraper)
-
