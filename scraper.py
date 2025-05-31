@@ -1,4 +1,5 @@
 import json
+import os
 from datetime import datetime
 from typing import List, Dict
 
@@ -9,6 +10,9 @@ from bs4 import BeautifulSoup
 class BoligScraper:
     def __init__(self, config_path: str):
         self.config = self._load_config(config_path)
+        # Use environment variable for cache file location in Cloud Run
+        cache_file = os.getenv('LISTINGS_CACHE_FILE', self.config['listings_cache_file'])
+        self.config['listings_cache_file'] = cache_file
         self.seen_listings = self._load_seen_listings()
         self.headers = {
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
@@ -24,12 +28,22 @@ class BoligScraper:
 
     def _load_seen_listings(self) -> set:
         try:
+            # Ensure directory exists
+            cache_dir = os.path.dirname(self.config['listings_cache_file'])
+            if cache_dir and not os.path.exists(cache_dir):
+                os.makedirs(cache_dir, exist_ok=True)
+
             with open(self.config['listings_cache_file'], 'r') as f:
                 return set(line.strip() for line in f)
         except FileNotFoundError:
             return set()
 
     def _save_seen_listings(self):
+        # Ensure directory exists
+        cache_dir = os.path.dirname(self.config['listings_cache_file'])
+        if cache_dir and not os.path.exists(cache_dir):
+            os.makedirs(cache_dir, exist_ok=True)
+
         with open(self.config['listings_cache_file'], 'w') as f:
             for listing_id in self.seen_listings:
                 f.write(f"{listing_id}\n")

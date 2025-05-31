@@ -83,3 +83,38 @@ In `config.json`:
 - `check_interval`: Time between checks in seconds
 - `seen-listings.txt`: File to store seen listing IDs
 
+## GCloud Deployment
+### Set your project
+gcloud config set project YOUR_PROJECT_ID
+
+### Build and push the image
+gcloud builds submit --region=europe-west1
+
+### Create Cloud Run Job
+gcloud run jobs create boligportal-scraper \
+    --image=gcr.io/YOUR_PROJECT_ID/boligportal-scraper:latest \
+    --region=europe-west1 \
+    --memory=1Gi \
+    --cpu=1 \
+    --max-retries=3 \
+    --parallelism=1 \
+    --task-timeout=1800 \
+    --set-env-vars="CLOUD_RUN_JOB=true,TELEGRAM_BOT_TOKEN=your_token,TELEGRAM_CHAT_ID=your_chat_id"
+
+### Create Cloud Scheduler job to trigger every 10 minutes
+(within the 10 minutes it will run every 30 seconds)
+gcloud scheduler jobs create http boligportal-scraper-schedule \
+    --location=europe-west1 \
+    --schedule="*/10 * * * *" \
+    --uri="https://europe-west1-run.googleapis.com/apis/run.googleapis.com/v1/namespaces/YOUR_PROJECT_ID/jobs/boligportal-scraper:run" \
+    --http-method=POST \
+    --oauth-service-account-email=YOUR_SERVICE_ACCOUNT@YOUR_PROJECT_ID.iam.gserviceaccount.com
+
+### Environment Variables Setup
+Set these in your Cloud Run Job:
+
+CLOUD_RUN_JOB=true
+TELEGRAM_BOT_TOKEN=your_bot_token
+TELEGRAM_CHAT_ID=your_chat_id
+LISTINGS_CACHE_FILE=/app/data/seen_listings.txt
+CONFIG_PATH=/app/config/config.json

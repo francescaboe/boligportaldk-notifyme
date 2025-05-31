@@ -1,0 +1,7 @@
+name: boligportal-scraper-job
+description: "Runs Boligportal scraper every 30 seconds"
+schedule: "* * * * *"  # Every minute (minimum for Cloud Scheduler)
+time_zone: "Europe/Copenhagen"
+http_target:
+  uri: "https://YOUR_CLOUD_RUN_JOB_URL"
+  http_method: POST
