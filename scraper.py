@@ -122,8 +122,15 @@ class BoligScraper:
                             'found_at': datetime.now().isoformat()
                         }
 
-                        new_listings.append(details)
-                        self.seen_listings.add(listing_id)
+                        # Only include listings that are 0 to 5 minutes old
+                        if listing_age and "minute" in listing_age:
+                            try:
+                                minutes = int(listing_age.split()[0])
+                                if 0 <= minutes <= 5:
+                                    new_listings.append(details)
+                                    self.seen_listings.add(listing_id)
+                            except ValueError:
+                                pass  # skip if parsing fails
 
                 except Exception as e:
                     print(f"Error processing card: {str(e)}")
